@@ -1,4 +1,6 @@
-#Alex Atwater 2015
+"""
+Author: Alex Atwater, 2015
+"""
 
 import pdb
 import logging
@@ -10,38 +12,38 @@ fileName = os.path.join(os.path.dirname(__file__), 'ws.txt')
 logging.basicConfig(filename='dubug.log',level=logging.DEBUG)
 
 
-#into
+# into
 print("Welcome. Opening file {}", fileName)
 
-#open file
+# open file
 wordFile = open(fileName, "r")
 print("Opened file.")
 
-#create grid dictionary and grid dimension
+# create grid dictionary and grid dimension
 word_grid = {}
 GRID_DIMENSION = (13, 13)
 
-#minus 1 for starting at zero
+# minus 1 for starting at zero
 GRID_DIMENSION = (GRID_DIMENSION[0] - 1, GRID_DIMENSION[1] - 1)
 
 print("Analyzing file.")
 
 
 for lineLoop in enumerate(wordFile):
-	#analyze each line
+	# analyze each line
 	lineList = list(lineLoop[1])
 
-	#now analyze every letter and put into grid
+	# now analyze every letter and put into grid
 	for letterLoop in enumerate(lineList):
 
-		#get attributes
+		# get attributes
 		letterDimension = (lineLoop[0], letterLoop[0])
 		letter = letterLoop[1]
 
 		if letter == "\n":
 			continue
 
-		#now add to dictionary
+		# now add to dictionary
 		word_grid[letterDimension] = letter
 
 
@@ -49,17 +51,15 @@ print("Grid complete, ready for input.")
 
 def getInput():
 	#get input two letters
-	userInput = raw_input("> ")
+	userInput = input("> ")
 
 	return userInput
 	
 
 def analyze(userInput):
-	
-	answerCoordinates = []
 
 	def addCoordinates(originalCoordinate, displacement):
-		
+
 		return tuple(map(sum,zip(originalCoordinate, displacement)))
 
 	def validCoordinate(coordinateToCheck):
