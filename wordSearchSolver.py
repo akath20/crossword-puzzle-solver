@@ -111,24 +111,3 @@ def analyze(user_input):
 
 while True:
     print(analyze(get_input()))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
