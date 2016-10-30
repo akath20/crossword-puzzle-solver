@@ -5,6 +5,8 @@ Author: Alex Atwater, 2015
 import pdb
 import logging
 import os
+import sys
+
 
 fileName = os.path.join(os.path.dirname(__file__), 'ws.txt')
 
@@ -49,103 +51,74 @@ for lineLoop in enumerate(wordFile):
 
 print("Grid complete, ready for input.")
 
-def getInput():
-	#get input two letters
-	userInput = raw_input("> ")
 
-	return userInput
-
-
-def analyze(userInput):
-
-	def addCoordinates(originalCoordinate, displacement):
-
-		return tuple(map(sum,zip(originalCoordinate, displacement)))
-
-	def validCoordinate(coordinateToCheck):
-
-		if all(((coordinateToCheck[0] >= 0), (coordinateToCheck[0] < (GRID_DIMENSION[0]+1)), (coordinateToCheck[1] >= 0), (coordinateToCheck[1] < (GRID_DIMENSION[0]+1)))):
-
-			return (True, coordinateToCheck)
-		else:
-
-			return (False, None)
-
-	def firstLetter():
-
-		#find all coordinates that contain the first letter
-		firstLetterCoordinates = []
-		firstLetter = userInput[0]
+def get_input():  # get input two letters
+    if sys.version_info[0] < 3:
+        user_input = raw_input("> ")
+    else:
+        user_input = input("> ")
+    return user_input
 
 
-		for item in word_grid.items():
-			#if matching letter, add coordinates to list
-			if item[1] == firstLetter:
-				firstLetterCoordinates.append(item[0])
+def analyze(user_input):
 
-		logging.debug("firstLetter(): {}".format(firstLetterCoordinates))
+    def add_coordinates(original_coord, displacement):
+        return tuple(map(sum, zip(original_coord, displacement)))
 
-		return firstLetterCoordinates
+    def valid_coord(coord_to_check):
+        if all(((coord_to_check[0] >= 0), (coord_to_check[0] < (GRID_DIMENSION[0] + 1)),
+                (coord_to_check[1] >= 0), (coord_to_check[1] < (GRID_DIMENSION[0] + 1)))):
+            return True, coord_to_check
+        else:
+            return False, None
 
-	def secondLetter(firstLetterCoordinates):
+    def first_letter():  # find all coordinates that contain first letter
+        first_letter_coord = []
+        first_letter = user_input[0]
+        for item in word_grid.items():  # if matching letter, add coordinates to list
+            if item[1] == first_letter:
+                first_letter_coord.append(item[0])
+        logging.debug("first_letter(): {}".format(first_letter_coord))
+        return first_letter_coord
 
-		combinationsDict = {}
+    def second_letter(first_letter_coord):
+        combinations_dict = {}
+        for coordinate_to_check in first_letter_coord:
+            # search all possible second letter combinations
+            coordinates_to_check = [(-1, 1), (0, 1), (1, 1), (-1, 0), (1, 0), (1, -1), (0, -1), (-1, -1)]
+            for mod_coordinate in coordinates_to_check:
+                valid_coordinate_output = valid_coord(add_coordinates(coordinate_to_check, mod_coordinate))
+                # if a valid coordinate
+                if valid_coordinate_output[0]:
+                    # check if there is a match. If there is one next to first letter, append and break loop
+                    if word_grid[valid_coordinate_output[1]] == user_input[1]:
+                        combinations_dict.setdefault(coordinate_to_check, []).append(
+                            {"coordinate": valid_coordinate_output[1], "mod_coordinate": mod_coordinate})
+        logging.debug(
+            "NumPossibilities: {}\nsecond_letter(): {}".format(len(combinations_dict.keys()), combinations_dict)) # combinations_dict.keys() does not work here
+        return combinations_dict
 
-		for coordinateToCheck in firstLetterCoordinates:
+    def find_answer(combinations_dict):
 
-			#search for all the possible second letter combinations
-			coordinatesToCheck = [(-1,1), (0, 1), (1,1), (-1,0), (1,0), (1,-1), (0,-1), (-1,-1)]
-
-			for modCoordinate in coordinatesToCheck:
-
-				validCoordinateOutput = validCoordinate(addCoordinates(coordinateToCheck, modCoordinate))
-
-				#if a valid coordinate
-				if validCoordinateOutput[0]:
-
-					#check if it's matches. If there is one next to first letter, add it and break the current loop
-					if word_grid[validCoordinateOutput[1]] == userInput[1]:
-
-						combinationsDict.setdefault(coordinateToCheck, []).append({"coordinate":validCoordinateOutput[1], "modCoordinate":modCoordinate})
-
-
-		logging.debug("NumPossibilties: {}\nsecondLetter(): {}".format(len(combinationsDict.keys()), combinationsDict))
-
-		return combinationsDict
-
-
-	def findAnswer(combinationsDict):
-
-		timesToIterate = (len(userInput)-2) #-2 becuase already did first and can't find next letter of last letter
-
-		for potentialStartCoordinate in combinationsDict.items():
-
-			#itereate over the list of posibilities that deviate from start point
-			for potentialNextCoordinateDict in enumerate(potentialStartCoordinate[1]):
-
-				currentIterateCount = 0
-				startIteratationCoordination = potentialNextCoordinateDict[1]["coordinate"]
-				modCoordinate = potentialNextCoordinateDict[1]["modCoordinate"]
-
-				while currentIterateCount < timesToIterate:
-
-					#move up in the direction give
-					startIteratationCoordination = addCoordinates(startIteratationCoordination, modCoordinate)
-
-					if validCoordinate(startIteratationCoordination)[0] == False:
-						break
-
-					#now check if the letter is the right letter
-					if word_grid[startIteratationCoordination] == userInput[currentIterateCount + 2]:
-						#if it's the right number, keep going. But if it came to an end, then stop everything and return to user.
-						return potentialStartCoordinate[0]
-
-					currentIterateCount += 1
-
-		return "Nothing was found."
-
-	return findAnswer(secondLetter(firstLetter()))
+        times_iter = (len(user_input) - 2)  # -2 because already did first and can't find next letter of last letter
+        for potential_start_coordinate in combinations_dict.items():
+            # iterate over the list of possibilities that deviate from start point
+            for potential_next_coord_dict in enumerate(potential_start_coordinate[1]):
+                curr_iter_count = 0
+                start_iter_coord = potential_next_coord_dict[1]["coordinate"]
+                mod_coordinate = potential_next_coord_dict[1]["mod_coordinate"]
+                while curr_iter_count < times_iter:
+                    # move up in the direction give
+                    start_iter_coord = add_coordinates(start_iter_coord, mod_coordinate)
+                    if not valid_coord(start_iter_coord)[0]:
+                        break
+                    # now check if the letter is the right letter
+                    if word_grid[start_iter_coord] == user_input[curr_iter_count + 2]:
+                        # if True, continue. Else, break and return to user
+                        return potential_start_coordinate[0]
+                    curr_iter_count += 1
+        return "Nothing was found."
+    return find_answer(second_letter(first_letter()))
 
 while True:
-
-	print(analyze(getInput()))
+    print(analyze(get_input()))
