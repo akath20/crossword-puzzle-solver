@@ -5,6 +5,9 @@ Author: Alex Atwater, 2015
 import pdb
 import logging
 import os
+import sys
+
+
 
 fileName = os.path.join(os.path.dirname(__file__), 'ws.txt')
 
@@ -44,7 +47,10 @@ print("Grid complete, ready for input.")
 
 
 def get_input():  # get input two letters
-    user_input = input("> ")
+    if sys.version_info[0] < 3:
+        user_input = raw_input("> ")
+    else:
+        user_input = input("> ")
     return user_input
 
 
