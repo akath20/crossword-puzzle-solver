@@ -51,10 +51,10 @@ print("Grid complete, ready for input.")
 
 def getInput():
 	#get input two letters
-	userInput = input("> ")
+	userInput = raw_input("> ")
 
 	return userInput
-	
+
 
 def analyze(userInput):
 
@@ -68,7 +68,7 @@ def analyze(userInput):
 
 			return (True, coordinateToCheck)
 		else:
-		
+
 			return (False, None)
 
 	def firstLetter():
@@ -84,13 +84,13 @@ def analyze(userInput):
 				firstLetterCoordinates.append(item[0])
 
 		logging.debug("firstLetter(): {}".format(firstLetterCoordinates))
-		
+
 		return firstLetterCoordinates
 
 	def secondLetter(firstLetterCoordinates):
 
 		combinationsDict = {}
-		
+
 		for coordinateToCheck in firstLetterCoordinates:
 
 			#search for all the possible second letter combinations
@@ -102,17 +102,17 @@ def analyze(userInput):
 
 				#if a valid coordinate
 				if validCoordinateOutput[0]:
-					
+
 					#check if it's matches. If there is one next to first letter, add it and break the current loop
 					if word_grid[validCoordinateOutput[1]] == userInput[1]:
 
 						combinationsDict.setdefault(coordinateToCheck, []).append({"coordinate":validCoordinateOutput[1], "modCoordinate":modCoordinate})
-				
+
 
 		logging.debug("NumPossibilties: {}\nsecondLetter(): {}".format(len(combinationsDict.keys()), combinationsDict))
 
 		return combinationsDict
-						
+
 
 	def findAnswer(combinationsDict):
 
@@ -123,7 +123,7 @@ def analyze(userInput):
 			#itereate over the list of posibilities that deviate from start point
 			for potentialNextCoordinateDict in enumerate(potentialStartCoordinate[1]):
 
-				currentIterateCount = 0 
+				currentIterateCount = 0
 				startIteratationCoordination = potentialNextCoordinateDict[1]["coordinate"]
 				modCoordinate = potentialNextCoordinateDict[1]["modCoordinate"]
 
@@ -131,7 +131,7 @@ def analyze(userInput):
 
 					#move up in the direction give
 					startIteratationCoordination = addCoordinates(startIteratationCoordination, modCoordinate)
-					
+
 					if validCoordinate(startIteratationCoordination)[0] == False:
 						break
 
@@ -145,28 +145,7 @@ def analyze(userInput):
 		return "Nothing was found."
 
 	return findAnswer(secondLetter(firstLetter()))
-	
+
 while True:
 
 	print(analyze(getInput()))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
